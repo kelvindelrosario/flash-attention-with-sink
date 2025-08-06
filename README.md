@@ -8,6 +8,8 @@ To test, run:
 python test.py
 ```
 
+⚠️ The backward implementation within this repo is not correct at the moment.
+
 ## TODO
 
 - [ ] backward
