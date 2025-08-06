@@ -2,16 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from typing import Optional
-from typing import Optional, Tuple
-
-import torch
-import torch.distributed as dist
-import torch.nn.functional as F
-import inspect
-from functools import cache
-import torch
-import torch.distributed as dist
-from flash_attn_with_sink import flash_attention_with_sink_forward
+from flash_attn_with_sink import flash_attn_with_sink_func
 
 
 def repeat_kv(hidden_states: torch.Tensor, n_rep: int) -> torch.Tensor:
@@ -124,7 +115,7 @@ if __name__ == "__main__":
     k_flash = key.transpose(1, 2)  # (batch, seq_len, num_kv_heads, head_dim)
     v_flash = value.transpose(1, 2)  # (batch, seq_len, num_kv_heads, head_dim)
 
-    flash_output = flash_attention_with_sink_forward(
+    flash_output = flash_attn_with_sink_func(
         q_flash,
         k_flash,
         v_flash,
