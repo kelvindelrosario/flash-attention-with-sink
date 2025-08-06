@@ -6,7 +6,6 @@ To test, run:
 
 ```bash
 python test.py
-python test_backward.py
 ```
 
 ## TODO
