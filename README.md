@@ -6,10 +6,11 @@ To test, run:
 
 ```bash
 python test.py
+python test_backward.py
 ```
 
 ## TODO
 
-- [x] ~backward~ reuse the origin backward of flash_attn.
+- [ ] backward
 - [ ] varlen version
 - [ ] communicate with flash attention community to only return `softmax_lse` but not `S_dmask`.
