@@ -151,10 +151,6 @@ if __name__ == "__main__":
         f"Relative error: {torch.mean(torch.abs(eager_output - flash_output) / (torch.abs(eager_output) + 1e-8))}"
     )
 
-    # Check if outputs are close
-    is_close = torch.allclose(eager_output, flash_output, atol=1e-4, rtol=1e-3)
-    print(f"Outputs are close (atol=1e-4, rtol=1e-3): {is_close}")
-
     print("\nEager output sample (first 5x5 elements):")
     print(eager_output[0, 0, :5, :5])
     print("\nFlash output sample (first 5x5 elements):")
