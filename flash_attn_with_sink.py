@@ -21,6 +21,13 @@ class FlashAttentionWithSink(torch.autograd.Function):
         deterministic=False,
         return_attn_probs=False,
     ):
+        # Check device
+        if q.device.type != 'cuda':
+            raise RuntimeError(
+                f"Flash Attention only supports CUDA devices, "
+                f"current device: {q.device}"
+            )
+        
         ctx.save_for_backward(q, k, v, sink, alibi_slopes)
         ctx.dropout_p = dropout_p
         ctx.softmax_scale = softmax_scale
@@ -29,6 +36,7 @@ class FlashAttentionWithSink(torch.autograd.Function):
         ctx.softcap = softcap
         ctx.deterministic = deterministic
         ctx.return_attn_probs = return_attn_probs
+        ctx.sink_shape = sink.shape  # Save original sink shape
 
         out, lse, _ = flash_attn_func(
             q,
@@ -67,55 +75,106 @@ class FlashAttentionWithSink(torch.autograd.Function):
         sink_reshaped = sink.reshape(1, 1, -1, 1)
         multiplier = 1 / (torch.exp(sink_reshaped - lse) + 1)
 
-        grad_sink = torch.sum(
-            grad_output * raw_output * multiplier * (1 - multiplier), dim=(0, 1, 3)
-        )
-
+        # 1) Main path via multiplier
         grad_raw_output = (grad_output * multiplier).to(q.dtype)
 
-        # Use flash attention backward function
-        # Function signature: _flash_attn_backward(dout, q, k, v, out, softmax_lse,
-        # dq, dk, dv, dropout_p, softmax_scale, causal, window_size_left,
-        # window_size_right, softcap, alibi_slopes, deterministic, rng_state)
-        # Create output tensors
-        grad_q = torch.empty_like(q)
-        grad_k = torch.empty_like(k)
+        # Use flash attention backward function for main path
+        grad_q_main = torch.empty_like(q)
+        grad_k_main = torch.empty_like(k)
         grad_v = torch.empty_like(v)
 
         _flash_attn_backward(
-            grad_raw_output,  # dout: adjusted gradient
-            q,  # q
-            k,  # k
-            v,  # v
-            ctx.raw_output,  # out: original output
-            lse,  # softmax_lse
-            grad_q,  # dq: output parameter
-            grad_k,  # dk: output parameter
-            grad_v,  # dv: output parameter
-            ctx.dropout_p,  # dropout_p
+            grad_raw_output,  # dout: main path gradient
+            q,                # q
+            k,                # k
+            v,                # v
+            ctx.raw_output,   # out: original output
+            lse,              # softmax_lse
+            grad_q_main,      # dq: main path
+            grad_k_main,      # dk: main path
+            grad_v,           # dv: main path
+            ctx.dropout_p,    # dropout_p
             ctx.softmax_scale,  # softmax_scale
-            ctx.causal,  # causal
+            ctx.causal,       # causal
             ctx.window_size[0],  # window_size_left
             ctx.window_size[1],  # window_size_right
-            ctx.softcap,  # softcap
-            alibi_slopes,  # alibi_slopes
+            ctx.softcap,      # softcap
+            alibi_slopes,     # alibi_slopes
             ctx.deterministic,  # deterministic
         )
 
-        return (
-            grad_q,
-            grad_k,
-            grad_v,
-            grad_sink,
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
+        # 2) Sink gradient path
+        # g_r = (grad_output * raw_output).sum(dim=-1)  # [B,H,Nq]
+        g_r = torch.sum(grad_output * raw_output, dim=-1)
+        
+        # g_ell = g_r * multiplier * (1 - multiplier)  # [B,H,Nq]
+        # Based on debug output:
+        # g_r shape: [1, 512, 64] (batch, seq_len, heads)
+        # multiplier shape: [1, 512, 64, 1] (batch, seq_len, heads, 1)
+        # We need multiplier_for_grad to have shape [1, 512, 64]
+        # [1, 512, 64, 1] -> [1, 512, 64]
+        multiplier_for_grad = multiplier.squeeze(-1)
+        
+        g_ell = g_r * multiplier_for_grad * (1 - multiplier_for_grad)
+        # Based on shapes: g_ell [1, 512, 64], we need to sum over seq_len (dim=1)
+        # to get [1, 64], then sum over batch (dim=0) to get [64]
+        grad_sink = -torch.sum(g_ell, dim=1)  # Sum over seq_len -> [1, 64]
+        # Sum over batch dimension and reshape to match original sink shape
+        grad_sink = grad_sink.sum(dim=0)  # Sum over batch -> [64]
+        grad_sink = grad_sink.reshape(ctx.sink_shape)
+
+        # 3) Additional Q gradient via sink
+        # dQ_extra = scale * g_ell * attention(Q,K,K)
+        scale = ctx.softmax_scale or (1.0 / q.shape[-1] ** 0.5)
+
+        # Compute attention(Q,K,K) for additional Q gradient
+        mu_k = flash_attn_func(
+            q, k, k,
+            dropout_p=ctx.dropout_p,
+            softmax_scale=ctx.softmax_scale,
+            causal=ctx.causal,
+            window_size=ctx.window_size,
+            softcap=ctx.softcap,
+            alibi_slopes=alibi_slopes,
+            deterministic=ctx.deterministic,
+            return_attn_probs=False,
         )
+        grad_q_extra = scale * g_ell.unsqueeze(-1) * mu_k
+
+        # 4) Additional K gradient via sink
+        # dK_extra = scale * P^T (g_ell * Q)
+        x = (g_ell.unsqueeze(-1) * q).to(q.dtype)
+
+        # Use flash attention backward to compute P^T X
+        grad_k_extra = torch.empty_like(k)
+        _flash_attn_backward(
+            x,                  # dout: g_ell * Q
+            q,                  # q
+            k,                  # k
+            k,                  # v (dummy, using K as V)
+            ctx.raw_output,     # out: original output
+            lse,                # softmax_lse
+            None,               # dq: not needed
+            None,               # dk: not needed
+            grad_k_extra,       # dv: this will be dK_extra
+            ctx.dropout_p,      # dropout_p
+            ctx.softmax_scale,  # softmax_scale
+            ctx.causal,         # causal
+            ctx.window_size[0],  # window_size_left
+            ctx.window_size[1],  # window_size_right
+            ctx.softcap,        # softcap
+            alibi_slopes,       # alibi_slopes
+            ctx.deterministic,  # deterministic
+        )
+        grad_k_extra = scale * grad_k_extra
+
+        # 5) Sum all gradients
+        grad_q = grad_q_main + grad_q_extra
+        grad_k = grad_k_main + grad_k_extra
+        # grad_v already from main path
+
+        return (grad_q, grad_k, grad_v, grad_sink, None, None, None, None, 
+                None, None, None, None)
 
 
 def flash_attn_with_sink_func(
@@ -132,17 +191,14 @@ def flash_attn_with_sink_func(
     deterministic=False,
     return_attn_probs=False,
 ):
+    # Check CUDA availability
+    if not torch.cuda.is_available():
+        raise RuntimeError(
+            "Flash Attention requires CUDA devices. "
+            "Current device does not support CUDA."
+        )
+    
     return FlashAttentionWithSink.apply(
-        q,
-        k,
-        v,
-        sink,
-        dropout_p,
-        softmax_scale,
-        causal,
-        window_size,
-        softcap,
-        alibi_slopes,
-        deterministic,
-        return_attn_probs,
+        q, k, v, sink, dropout_p, softmax_scale, causal,
+        window_size, softcap, alibi_slopes, deterministic, return_attn_probs
     )
